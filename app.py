@@ -3,6 +3,7 @@ import sqlite3
 from db import get_pending_requests, get_all_requests, resolve_request, is_timed_out
 
 app = Flask(__name__)
+app.secret_key = "super_secret_key"  # For flash messages
 
 @app.route('/')
 def index():
@@ -41,6 +42,10 @@ def resolve(request_id):
         flash(f"Request #{request_id} resolved successfully", "success")
         return redirect(url_for('index'))
     return render_template('resolve.html', req=req)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
