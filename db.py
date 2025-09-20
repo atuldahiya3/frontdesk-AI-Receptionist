@@ -16,14 +16,27 @@ def init_db():
                  (id INTEGER PRIMARY KEY,
                   question TEXT UNIQUE,
                   answer TEXT)''')
+    # Expanded knowledge base for fake salon with more variations
     initial_kb = [
         ("What are the opening hours?", "We are open from 9 AM to 6 PM, Monday to Saturday."),
+        ("What are the saloon timings?", "We are open from 9 AM to 6 PM, Monday to Saturday."),
+        ("What time do you open?", "We open at 9 AM, Monday to Saturday."),
+        ("What time do you close?", "We close at 6 PM, Monday to Saturday."),
+        ("Hours of operation?", "We are open from 9 AM to 6 PM, Monday to Saturday."),
         ("What services do you offer?", "We offer haircuts, hair coloring, styling, manicures, and pedicures."),
+        ("What services are available?", "We offer haircuts, hair coloring, styling, manicures, and pedicures."),
+        ("Do you do haircuts?", "Yes, haircuts start at $30 for adults and $20 for children."),
+        ("How much does a haircut cost?", "Haircuts start at $30 for adults and $20 for children."),
+        ("Haircut price?", "Haircuts start at $30 for adults and $20 for children."),
+        ("Do you accept walk-ins?", "Yes, but appointments are recommended to avoid waiting."),
+        ("Can I walk in?", "Yes, but appointments are recommended to avoid waiting."),
+        ("What is the price of a perm?", "Perms start at $80. Please call to schedule."),
+        ("Do you offer manicures?", "Yes, manicures start at $25.")
     ]
     try:
         c.executemany("INSERT OR IGNORE INTO knowledge (question, answer) VALUES (?, ?)", initial_kb)
     except sqlite3.IntegrityError:
-        pass
+        pass  # Ignore duplicates
     conn.commit()
     conn.close()
 
@@ -57,7 +70,13 @@ def resolve_request(request_id, answer, question):
     c = conn.cursor()
     c.execute("UPDATE help_requests SET status = 'resolved', answer = ?, resolved_at = CURRENT_TIMESTAMP WHERE id = ?", (answer, request_id))
     conn.commit()
+    # Get caller_id for simulated text
+    c.execute("SELECT caller_id FROM help_requests WHERE id = ?", (request_id,))
+    caller_id = c.fetchone()[0]
     conn.close()
+    # Simulate texting
+    print(f"Simulated text to {caller_id}: Regarding your question '{question}', the answer is: {answer}")
+    # Update KB
     add_to_kb(question, answer)
 
 def add_to_kb(question, answer):
@@ -79,8 +98,17 @@ def load_kb():
     return "\n".join(f"Q: {q}\nA: {a}" for q, a in kb)
 
 def is_timed_out(created_at):
+    # Simple check: if >1 hour old, consider unresolved (for display)
     dt = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S')
     return (datetime.now() - dt).total_seconds() > 3600
+
+def update_request_status_by_question(question, status):
+    """Update the status of a help request matching the given question."""
+    conn = sqlite3.connect('db.sqlite')
+    c = conn.cursor()
+    c.execute("UPDATE help_requests SET status = ? WHERE question = ? AND status = 'pending'", (status, question))
+    conn.commit()
+    conn.close()
 
 if __name__ == "__main__":
     init_db()

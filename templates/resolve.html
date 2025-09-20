@@ -8,6 +8,19 @@
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-6">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <h1 class="text-3xl font-bold mb-6">Resolve Request #{{ req[0] }}</h1>
         <div class="bg-white p-6 rounded-lg shadow">
             <p class="mb-2"><strong>Question:</strong> {{ req[1] }}</p>
@@ -15,11 +28,11 @@
             <form method="post" class="space-y-4">
                 <div>
                     <label for="answer" class="block text-sm font-medium text-gray-700">Answer:</label>
-                    <textarea id="answer" name="answer" rows="4" class="w-full mt-1 p-2 border rounded-md"></textarea>
+                    <textarea id="answer" name="answer" rows="4" class="w-full mt-1 p-2 border rounded-md" required aria-required="true"></textarea>
                 </div>
                 <div class="flex space-x-4">
-                    <input type="submit" value="Submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    <a href="{{ url_for('index') }}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400">Back</a>
+                    <input type="submit" value="Submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" aria-label="Submit answer">
+                    <a href="{{ url_for('index') }}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400" aria-label="Back to dashboard">Back</a>
                 </div>
             </form>
         </div>

@@ -5,19 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Supervisor Dashboard - Salon X</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Auto-refresh pending requests every 30 seconds
+        setInterval(() => {
+            fetch('/').then(response => response.text()).then(html => {
+                document.body.innerHTML = html;
+            });
+        }, 30000);
+        // Sort table by column
+        function sortTable(n, tableId) {
+            let table = document.getElementById(tableId);
+            let rows, switching = true, i, x, y, shouldSwitch, dir = "asc", switchcount = 0;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    } else if (dir == "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Supervisor Dashboard - Salon X</h1>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-4">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded {{ 'bg-green-100 text-green-800' if category == 'success' else 'bg-red-100 text-red-800' }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h1 class="text-3xl font-bold mb-6 text-center">Supervisor Dashboard - Salon X</h1>
+
+        <!-- Pending Requests -->
         <h2 class="text-2xl font-semibold mb-4">Pending Requests</h2>
         {% if pending %}
-            <table class="w-full bg-white shadow rounded-lg mb-6">
+            <table id="pendingTable" class="w-full bg-white shadow rounded-lg mb-6">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="p-3 text-left">ID</th>
-                        <th class="p-3 text-left">Question</th>
-                        <th class="p-3 text-left">Caller</th>
-                        <th class="p-3 text-left">Created</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(0, 'pendingTable')">ID</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(1, 'pendingTable')">Question</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(2, 'pendingTable')">Caller</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(3, 'pendingTable')">Created</th>
                         <th class="p-3 text-left">Action</th>
                     </tr>
                 </thead>
@@ -29,7 +81,7 @@
                             <td class="p-3">{{ p[2] }}</td>
                             <td class="p-3">{{ p[5] }}</td>
                             <td class="p-3">
-                                <a href="/resolve/{{ p[0] }}" class="text-blue-600 hover:underline">Resolve</a>
+                                <a href="/resolve/{{ p[0] }}" class="text-blue-600 hover:underline" aria-label="Resolve request {{ p[0] }}">Resolve</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -38,18 +90,20 @@
         {% else %}
             <p class="text-gray-600">No pending requests.</p>
         {% endif %}
-        <h2 class="text-2xl font-semibold mb-4">History</h2>
+
+        <!-- History -->
+        <h2 class="text-2xl font-semibold mb-4">History (Resolved/Unresolved)</h2>
         {% if history %}
-            <table class="w-full bg-white shadow rounded-lg">
+            <table id="historyTable" class="w-full bg-white shadow rounded-lg mb-6">
                 <thead>
                     <tr class="bg-gray-200">
-                        <th class="p-3 text-left">ID</th>
-                        <th class="p-3 text-left">Question</th>
-                        <th class="p-3 text-left">Caller</th>
-                        <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-left">Answer</th>
-                        <th class="p-3 text-left">Created</th>
-                        <th class="p-3 text-left">Resolved</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(0, 'historyTable')">ID</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(1, 'historyTable')">Question</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(2, 'historyTable')">Caller</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(3, 'historyTable')">Status</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(4, 'historyTable')">Answer</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(5, 'historyTable')">Created</th>
+                        <th class="p-3 text-left cursor-pointer" onclick="sortTable(6, 'historyTable')">Resolved</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,7 +112,7 @@
                             <td class="p-3">{{ h[0] }}</td>
                             <td class="p-3">{{ h[1] }}</td>
                             <td class="p-3">{{ h[2] }}</td>
-                            <td class="p-3">{{ h[7] }}</td>
+                            <td class="p-3 {{ 'text-green-600' if h[7] == 'resolved' else 'text-red-600' }}">{{ h[7] }}</td>
                             <td class="p-3">{{ h[4] or 'N/A' }}</td>
                             <td class="p-3">{{ h[5] }}</td>
                             <td class="p-3">{{ h[6] or 'N/A' }}</td>
@@ -68,6 +122,29 @@
             </table>
         {% else %}
             <p class="text-gray-600">No history available.</p>
+        {% endif %}
+
+        <!-- Knowledge Base -->
+        <h2 class="text-2xl font-semibold mb-4">Learned Answers (Knowledge Base)</h2>
+        {% if kb %}
+            <table class="w-full bg-white shadow rounded-lg">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-left">Question</th>
+                        <th class="p-3 text-left">Answer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q, a in kb %}
+                        <tr class="border-b">
+                            <td class="p-3">{{ q }}</td>
+                            <td class="p-3">{{ a }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-gray-600">Knowledge base is empty.</p>
         {% endif %}
     </div>
 </body>
