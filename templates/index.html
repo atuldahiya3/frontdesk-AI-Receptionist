@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard - Salon X</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">Supervisor Dashboard - Salon X</h1>
+        <h2 class="text-2xl font-semibold mb-4">Pending Requests</h2>
+        {% if pending %}
+            <table class="w-full bg-white shadow rounded-lg mb-6">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">Question</th>
+                        <th class="p-3 text-left">Caller</th>
+                        <th class="p-3 text-left">Created</th>
+                        <th class="p-3 text-left">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pending %}
+                        <tr class="border-b">
+                            <td class="p-3">{{ p[0] }}</td>
+                            <td class="p-3">{{ p[1] }}</td>
+                            <td class="p-3">{{ p[2] }}</td>
+                            <td class="p-3">{{ p[5] }}</td>
+                            <td class="p-3">
+                                <a href="/resolve/{{ p[0] }}" class="text-blue-600 hover:underline">Resolve</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-gray-600">No pending requests.</p>
+        {% endif %}
+        <h2 class="text-2xl font-semibold mb-4">History</h2>
+        {% if history %}
+            <table class="w-full bg-white shadow rounded-lg">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-left">ID</th>
+                        <th class="p-3 text-left">Question</th>
+                        <th class="p-3 text-left">Caller</th>
+                        <th class="p-3 text-left">Status</th>
+                        <th class="p-3 text-left">Answer</th>
+                        <th class="p-3 text-left">Created</th>
+                        <th class="p-3 text-left">Resolved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in history %}
+                        <tr class="border-b">
+                            <td class="p-3">{{ h[0] }}</td>
+                            <td class="p-3">{{ h[1] }}</td>
+                            <td class="p-3">{{ h[2] }}</td>
+                            <td class="p-3">{{ h[7] }}</td>
+                            <td class="p-3">{{ h[4] or 'N/A' }}</td>
+                            <td class="p-3">{{ h[5] }}</td>
+                            <td class="p-3">{{ h[6] or 'N/A' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-gray-600">No history available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
