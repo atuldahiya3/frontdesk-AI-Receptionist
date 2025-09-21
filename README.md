@@ -1,5 +1,5 @@
 # Salon X Frontdesk Test
-->A text-based AI receptionist system for a fictional hair salon, Salon X, built with Python, Flask, and LiveKit Agents. The project ->includes an AI agent that answers customer questions and escalates unknown queries to a supervisor, and a web-based supervisor dashboard -> to manage and resolve requests.
+->A text-based AI receptionist system for a hair salon, Salon X, built with Python, Flask, and LiveKit Agents. The project ->includes an AI agent that answers customer questions and escalates unknown queries to a supervisor, and a web-based supervisor dashboard -> to manage and resolve requests.
 -> Features
 
 # AI Receptionist (agent.py):
@@ -38,8 +38,8 @@
 # Installation
 
 -> Clone the Repository:
--> git clone <repository-url>
--> cd frontdesk-test
+-> git clone https://github.com/atuldahiya3/frontdesk-AI-Receptionist
+-> cd frontdesk-ai-receptionist
 
 
 # Set Up Virtual Environment:
@@ -79,7 +79,7 @@
 
 
 # Project Structure
-frontdesk-test/
+frontdesk-ai-receptionist/
 ├── agent.py          # AI receptionist logic
 ├── app.py            # Flask supervisor dashboard
 ├── db.py             # Database utilities
@@ -154,12 +154,3 @@ frontdesk-test/
 # Question Re-escalation:
 
 -> Verify KB contains resolved question:sqlite3 db.sqlite "SELECT * FROM knowledge WHERE question = 'What is the price of a perm?';"
-
-
-
-
-
-# Contributing
--> Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.
--> License
--> This project is for educational purposes and not licensed for production use.
